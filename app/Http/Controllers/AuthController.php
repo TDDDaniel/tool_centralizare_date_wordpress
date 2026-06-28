@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -24,7 +24,7 @@ class AuthController extends Controller
         $user->password = bcrypt($request->input('password'));
         $user->save();
 
-        return redirect('/login');
+        return redirect('/dashboard');
     }
 
     public function showLoginForm()
@@ -34,15 +34,21 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // 1. caut userul dupa email in baza de date
-        $user = User::where('email', $request->input('email'))->first();
+        $credentiale = $request->only('email', 'password');
 
-        // 2. daca exista SI parola se potriveste
-        if ($user && Hash::check($request->input('password'), $user->password)) {
-            return redirect('/');
+        if (Auth::attempt($credentiale)) {
+            $request->session()->regenerate();
+            return redirect('/dashboard');
         }
-
-        // altfel, inapoi la login
         return redirect('/login');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }
