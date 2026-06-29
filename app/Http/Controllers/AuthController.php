@@ -22,8 +22,9 @@ class AuthController extends Controller
         $user->name = $request->input('name');
         $user->email = $request->input('email');
         $user->password = bcrypt($request->input('password'));
+        $user->company_name = $request->input('company_name');
         $user->save();
-
+        Auth::login($user);
         return redirect('/dashboard');
     }
 

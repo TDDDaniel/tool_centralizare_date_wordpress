@@ -14,6 +14,7 @@
         <input type="text" name="name" placeholder="Nume">
         <input type="email" name="email" placeholder="Email">
         <input type="password" name="password" placeholder="Parola">
+        <input type="text" name="company_name" placeholder="Numele companiei">
         <button type="submit">Inregistreaza-te</button>
     </form>
     <p class="link">ai cont? <a href="/login">Autentificare</a></p>
