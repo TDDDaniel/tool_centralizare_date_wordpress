@@ -18,11 +18,20 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $user = new User();
-        $user->name = $request->input('name');
-        $user->email = $request->input('email');
-        $user->password = bcrypt($request->input('password'));
-        $user->save();
+        //Am modificat request-ul de inregistrare pentru a putea pune niste limite la inputuri
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+        ]);
+
+        Auth::login($user);
 
         return redirect('/dashboard');
     }
