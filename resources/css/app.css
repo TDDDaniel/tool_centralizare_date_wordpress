@@ -66,3 +66,11 @@ button:hover {
     color: #667eea;
     text-decoration: none;
 }
+
+.error {
+    display: block;
+    color: #e0554e;
+    font-size: 13px;
+    margin-top: -8px;
+    margin-bottom: 12px;
+}
