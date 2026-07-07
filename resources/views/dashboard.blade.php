@@ -47,14 +47,16 @@
                 <button class="tab" data-target="wordpress">🌐 Din WordPress</button>
             </div>
 
-            <div class="panel" data-panel="upload">
+            <form method="POST" action="/upload" enctype="multipart/form-data" class="panel" data-panel="upload">
+                @csrf
                 <div class="drop" id="dropzone">
                     <div class="drop-ic">⬇</div>
                     <div class="drop-t" id="drop-text">Trage fișierul aici</div>
                     <div class="drop-s" id="drop-sub">sau click pentru a alege (.csv, .xlsx)</div>
                 </div>
-                <input type="file" id="file-input" class="hidden" accept=".csv,.xlsx">
-            </div>
+                <input type="file" name="fisier" id="file-input" class="hidden" accept=".csv,.xlsx">
+                <button type="submit" id="submit-btn" class="accept hidden">Trimite fișierul</button>
+            </form>
 
             <div class="panel hidden" data-panel="wordpress">
                 <div class="wp">

@@ -1,7 +1,7 @@
 // === Comutatorul intre "Incarca fisier" si "Din WordPress" ===
 const tabs = document.querySelectorAll('.tab');
 const panels = document.querySelectorAll('.panel');
-
+let submitBtn = document.getElementById('submit-btn');
 tabs.forEach(tab => {
     tab.addEventListener('click', () => {
         // scoate evidentierea de pe toate taburile, pune-o doar pe cel apasat
@@ -27,6 +27,7 @@ function showFileName(file) {
     dropzone.classList.add('filled');
     dropText.textContent = '✔ ' + file.name;
     dropSub.textContent = 'Fisier pregatit';
+    submitBtn.classList.remove('hidden');
 }
 
 // click pe zona = deschide selectorul de fisiere
@@ -44,5 +45,7 @@ dropzone.addEventListener('dragleave', () => dropzone.classList.remove('over'));
 dropzone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropzone.classList.remove('over');
+    fileInput.files = e.dataTransfer.files;
     showFileName(e.dataTransfer.files[0]);
+
 });
