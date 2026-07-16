@@ -1,0 +1,166 @@
+/* Ensure the body puts the sidebar and main content side-by-side */
+body {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f8fafc; /* Subtle dashboard background */
+}
+
+/* Main Content Area */
+.orderDetail {
+    flex: 1; /* Takes up the remaining space next to the sidebar */
+    padding: 40px 48px;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Page Title */
+.orderDetail h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 0;
+    margin-bottom: 32px;
+}
+
+/* Main White Card Container */
+.orderDetail .details {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+}
+
+/* Standard Data Rows */
+.orderDetail .details h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #334155;
+    padding: 16px 0;
+    margin: 0;
+    border-bottom: 1px solid #f1f5f9;
+    letter-spacing: -0.01em;
+}
+
+/* Highlight the Total Price */
+.orderDetail .details h4:nth-of-type(1) {
+    border-bottom: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #10b981; /* Emerald green for money */
+    margin-bottom: 16px;
+}
+
+/* Client Information Inner Box */
+.orderDetail .clientInformation {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 16px;
+}
+
+/* "Informatii personale" Subtitle */
+.orderDetail .clientInformation h4:first-child {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0f172a;
+    border-bottom: none;
+    padding-top: 0;
+    padding-bottom: 16px;
+    margin-bottom: 8px;
+}
+
+/* Client Info Data Rows */
+.orderDetail .clientInformation h4:not(:first-child) {
+    padding: 12px 0;
+    font-size: 0.9rem;
+    color: #475569;
+}
+
+/* Remove bottom border from the very last row */
+.orderDetail .clientInformation h4:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Back Button Styling (Assuming you move it inside .orderDetail) */
+.btn-back {
+    display: inline-block;
+    margin-top: 32px;
+    padding: 10px 20px;
+    background-color: #ffffff;
+    color: #0f172a;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-back:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+/* --- Produse comandate --- */
+.produseComandate {
+    margin-top: 16px;
+}
+
+/* fiecare produs = un card gri deschis */
+.produseComandate > div {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: #0f172a; /* culoarea VALORILOR (Tricou, 2, 45.50) */
+    line-height: 1.35;
+}
+
+.produseComandate > div:last-child {
+    margin-bottom: 0;
+}
+
+/* etichetele (Numele produsului: etc.) — mici, gri, majuscule */
+/* selector foarte specific ca sa bata regulile .details h4 existente */
+.orderDetail .produseComandate div h4 {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 12px 0 2px;
+    padding: 0;
+    border-bottom: none;
+}
+
+.orderDetail .produseComandate div h4:first-child {
+    margin-top: 0;
+}
+
+.add-btn {
+    background: var(--brand);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border-radius: 10px;
+    text-decoration: none;
+}
+
+.add-btn:hover {
+    background: var(--brand-deep);
+}

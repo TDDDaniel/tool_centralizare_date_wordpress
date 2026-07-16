@@ -11,6 +11,8 @@ export default defineConfig({
                 'resources/css/home.css',
                 'resources/css/dashboard.css',
                 'resources/js/dashboard.js',
+                'resources/css/orders.css',
+                'resources/css/comanda.css',
             ],
             refresh: true,
         }),

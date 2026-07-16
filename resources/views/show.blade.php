@@ -37,14 +37,18 @@
             <h4>Nr telefon: {{$order->customer_phone}}</h4>
             <h4>Adresa: Judet {{$order->address_county}} | Oras: {{$order->address_city}}</h4>
             <h4>Strada {{$order->address_street}} | Numar: {{$order->address_number}}</h4>
-            <h4>Cod postal {{$order->address_postal_code}} | Oras: {{$order->address_city}}</h4>
+            <h4>Oras: {{$order->address_city}}</h4>
             <h4>Strada {{$order->address_street}} | Cladire: {{$order->address_building}}</h4>
+            <h2>Cod postal {{$order->address_postal_code}}</h2>
         </div>
-        <div>
+        <div class="produseComandate">
             @foreach($order->items as $item)
                 <div>
+                    <h4>Numele produsului: </h4>
                     {{$item->product_name}}
+                    <h4>Cantitatea: </h4>
                     {{$item->quantity}}
+                    <h4>Pret per unitate: </h4>
                     {{$item->price_per_unit}}
                 </div>
 

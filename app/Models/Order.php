@@ -12,13 +12,22 @@ class Order extends Model
     protected $fillable = [
         'shop_id',
         'order_reference',
-        'customer_name',
+        'customer_first_name',
+        'customer_last_name',
         'customer_phone',
         'customer_email',
-        'shipping_address',
+        'address_county',
+        'address_city',
+        'address_street',
+        'address_number',
+        'address_postal_code',
+        'address_building',
+        'address_entrance',
+        'address_floor',
+        'address_apartment',
         'total_price',
         'status',
-        'employee_notes'
+        'employee_notes',
     ];
 
     // O comandă APARȚINE UNUI SINGUR magazin (belongsTo)

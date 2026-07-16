@@ -22,6 +22,7 @@
             <a class="nav-item active">▦ Dashboard</a>
             <a href="#" class="nav-item">⚙ Settings</a>
             <a href="#" class="nav-item">◔ Profile</a>
+            <a href="/comenzi/adauga" class="add-btn">Adauga comanda</a>
         </nav>
         <form method="POST" action="/logout" class="logout-form">
             @csrf
@@ -32,45 +33,52 @@
     <main class="main">
         <div class="top">
             <div>
-                <div class="hi">Salut, {{ Auth::user()->name }} 👋</div>
-                <div class="sub">Încă n-ai adăugat date. Hai să începem.</div>
+                <div class="hi">Comenzi</div>
+                <div class="sub">Toate comenzile, de la toate magazinele.</div>
             </div>
-            <span class="badge">Cont nou</span>
+            <span class="badge">{{ $orders->total() }} în total</span>
         </div>
 
-        <div class="card">
-            <h2>Adaugă primele comenzi</h2>
-            <p class="lead">Alege de unde aduci datele:</p>
-
-            <div class="toggle">
-                <button class="tab on" data-target="upload">⬆ Încarcă fișier</button>
-                <button class="tab" data-target="wordpress">🌐 Din WordPress</button>
-            </div>
-
-            <form method="POST" action="/upload" enctype="multipart/form-data" class="panel" data-panel="upload">
-                @csrf
-                <div class="drop" id="dropzone">
-                    <div class="drop-ic">⬇</div>
-                    <div class="drop-t" id="drop-text">Trage fișierul aici</div>
-                    <div class="drop-s" id="drop-sub">sau click pentru a alege (.csv, .xlsx)</div>
-                </div>
-                <input type="file" name="fisier" id="file-input" class="hidden" accept=".csv,.xlsx">
-                <button type="submit" id="submit-btn" class="accept hidden">Trimite fișierul</button>
-            </form>
-
-            <div class="panel hidden" data-panel="wordpress">
-                <div class="wp">
-                    <div class="wp-ic">🌐</div>
-                    <div>
-                        <div class="wp-t">Colectează din site-uri WordPress</div>
-                        <div class="wp-s">E de forma</div>
+        {{-- lista de comenzi, una sub alta --}}
+        <div class="orders-list">
+            @forelse ($orders as $order)
+                {{-- Am schimbat <div> în <a> și am adăugat href --}}
+                <a href="/comenzi/{{ $order->id }}" class="order-row" style="text-decoration: none; color: inherit;">
+                    <div class="order-main">
+                        <div class="order-name">{{ $order->customer_first_name }} {{ $order->customer_last_name }}</div>
+                        <div class="order-meta">{{ $order->shop->name }} · {{ $order->order_reference }}</div>
+                        <div
+                            class="order-items">{{ $order->items->map(fn ($i) => $i->product_name . ' × ' . $i->quantity)->implode(', ') }}</div>
                     </div>
-                    <button class="wp-btn" disabled>Conectează site</button>
-                </div>
-            </div>
+                    <div class="order-side">
+                        <div class="order-total">{{ number_format($order->total_price, 2) }} lei</div>
+                        <span class="order-status">{{ $order->status }}</span>
+                    </div>
+                </a>
+            @empty
+                <p class="lead">Nu există comenzi.</p>
+            @endforelse
         </div>
-    </main>
 
+        {{-- paginare: butoane doar daca sunt mai multe pagini --}}
+        @if ($orders->hasPages())
+            <div class="pagination">
+                @if ($orders->onFirstPage())
+                    <span class="page-btn disabled">‹ Înapoi</span>
+                @else
+                    <a href="{{ $orders->previousPageUrl() }}" class="page-btn">‹ Înapoi</a>
+                @endif
+
+                <span class="page-info">Pagina {{ $orders->currentPage() }} din {{ $orders->lastPage() }}</span>
+
+                @if ($orders->hasMorePages())
+                    <a href="{{ $orders->nextPageUrl() }}" class="page-btn">Înainte ›</a>
+                @else
+                    <span class="page-btn disabled">Înainte ›</span>
+                @endif
+            </div>
+        @endif
+    </main>
 </div>
 </body>
 </html>
