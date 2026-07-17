@@ -10,9 +10,9 @@ class OrderController extends Controller
 {
     public function show($id)
     {
-        dump($id);
+        // dump($id);
         $order = Order::where('id', '=', $id)->with('items')->first();
-        dump($order);
+        //dump($order);
         // Pass the $order variable to a Blade view
         return view('show', compact('order'));
     }
