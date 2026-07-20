@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\PostalCode;
+use App\Support\AddressNormalizer as A;
 use Illuminate\Console\Command;
 
 class ImportCoduriPostale extends Command
@@ -28,7 +29,9 @@ class ImportCoduriPostale extends Command
         foreach ($records as $record) {
             $rows[] = [
                 'county' => $record[1],   // Judet      (pozitia 1 din rand)
+                'county_normalized' => A::normalize($record[1]),
                 'city' => $record[2],   // Localitate (pozitia 2)
+                'city_normalized' => A::normalize($record[2]),
                 'street' => null,         // localitatile n-au strada
                 'postal_code' => str_pad((string)$record[3], 6, '0', STR_PAD_LEFT), // 6 cifre
                 'source' => 'oficial',

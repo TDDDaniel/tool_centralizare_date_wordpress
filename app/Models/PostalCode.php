@@ -8,9 +8,12 @@ class PostalCode extends Model
 {
     protected $fillable = [
         'county',
+        'county_normalized',
         'city',
+        'city_normalized',
         'street',
         'postal_code',
         'source',
+        'normalized',
     ];
 }
