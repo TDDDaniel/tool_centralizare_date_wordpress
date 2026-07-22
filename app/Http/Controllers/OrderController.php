@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\PostalCodeLookup;
 use Illuminate\Http\Request;
 use App\Models\Shop;
 
@@ -23,7 +24,7 @@ class OrderController extends Controller
         return view('comanda', compact('shops'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, PostalCodeLookup $lookup)
     {
         // 1. Validam datele primite
         $validated = $request->validate([
@@ -36,6 +37,7 @@ class OrderController extends Controller
             'address_city' => 'required|string',
             'address_street' => 'required|string',
             'address_number' => 'required|string',
+            'address_postal_code' => 'nullable|string|size:6',
             'address_building' => 'nullable|string',
             'address_entrance' => 'nullable|string',
             'address_floor' => 'nullable|string',
@@ -44,7 +46,20 @@ class OrderController extends Controller
             'quantity' => 'required|integer|min:1',
             'price_per_unit' => 'required|numeric|min:0',
         ]);
-        // 2. Cream comanda
+        // 2. Cautam codul postal pe straturi (strada -> localitate -> nimic)
+        $gasit = $lookup->cauta(
+            $validated['address_county'],
+            $validated['address_city'],
+            $validated['address_street'],
+            $validated['address_number'],
+        );
+
+        // Ce a tastat operatorul are prioritate - el vorbeste cu clientul.
+        // Noi doar il avertizam daca nu se potriveste cu ce stim.
+        $tastat = $validated['address_postal_code'] ?? null;
+        $codFinal = $tastat ?: $gasit['cod'];
+
+        // 3. Cream comanda
         $order = Order::create([
             'shop_id' => $validated['shop_id'],
             'order_reference' => 'CMD-' . rand(1000, 9999),
@@ -56,7 +71,7 @@ class OrderController extends Controller
             'address_city' => $validated['address_city'],
             'address_street' => $validated['address_street'],
             'address_number' => $validated['address_number'],
-            'address_postal_code' => '',
+            'address_postal_code' => $codFinal ?? '',
             'address_building' => $validated['address_building'] ?? null,
             'address_entrance' => $validated['address_entrance'] ?? null,
             'address_floor' => $validated['address_floor'] ?? null,
@@ -69,7 +84,12 @@ class OrderController extends Controller
             'quantity' => $validated['quantity'],
             'price_per_unit' => $validated['price_per_unit'],
         ]);
-        // 4. Il trimitem la pagina de detalii a comenzii noi
-        return redirect('/comenzi/' . $order->id);
+        // 4. TEMPORAR: ne intoarcem pe formular ca sa vedem ce a gasit cautarea.
+        // Cand termini de testat, pui inapoi: redirect('/comenzi/' . $order->id)
+        return redirect('/comenzi/adauga')->with('postal', $gasit + [
+            'cod_tastat' => $tastat,
+            'cod_salvat' => $codFinal,
+            'order_id' => $order->id,
+        ]);
     }
 }

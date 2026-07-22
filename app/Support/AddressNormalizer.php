@@ -97,4 +97,27 @@ class AddressNormalizer
     {
         return $number % 2 === 0 ? 'par' : 'impar';
     }
+
+    public static function splitStreet(?string $value): array
+    {
+        $value = trim((string)$value);
+
+        if ($value === '') {
+            return ['tip' => null, 'nume' => ''];
+        }
+        //tip strada + nume strada = [tip strada, nume strada]
+        $bucati = preg_split('/\s+/', $value, 2);
+        $primul = self::normalize($bucati[0]);
+
+        foreach (self::TIPURI_STRADA as $tip) {
+            if ($primul === $tip) {
+                return [
+                    'tip' => $bucati[0],                             // pastram cum a scris sursa
+                    'nume' => isset($bucati[1]) ? trim($bucati[1]) : '',
+                ];
+            }
+        }
+
+        return ['tip' => null, 'nume' => $value];   // n-are prefix -> lasam numele intreg
+    }
 }

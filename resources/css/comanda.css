@@ -101,3 +101,86 @@ body > form {
 .submit-btn:hover {
     background: var(--brand-deep);
 }
+
+/* --- Variante de cod postal (apar cand strada are mai multe coduri) --- */
+.postal-variante {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.variante-titlu {
+    width: 100%;
+    margin: 0 0 2px;
+    font-size: 12px;
+    color: var(--ink-soft);
+}
+
+.varianta {
+    cursor: pointer;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.varianta:hover {
+    border-color: var(--brand);
+}
+
+/* NOU: mesaj cod potrivit (verde) si cod gresit (portocaliu) */
+.cod-ok {
+    display: inline-block;
+    color: #16a34a;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.cod-warning {
+    margin: 0 0 6px;
+    padding: 8px 10px;
+    border: 1px solid #f59e0b;      /* portocaliu, iese in evidenta */
+    background: #fffbeb;
+    color: #b45309;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* NOU: sugestia corecta, verde, cand codul scris de operator e gresit */
+.varianta-corecta {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    color: #15803d;
+    font-weight: 500;
+}
+
+.varianta-corecta:hover {
+    border-color: #15803d;
+}
+
+/* --- Autocomplete strada --- */
+.strada-sugestii {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.sugestie {
+    text-align: left;
+    cursor: pointer;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.sugestie:hover {
+    border-color: var(--brand);
+}

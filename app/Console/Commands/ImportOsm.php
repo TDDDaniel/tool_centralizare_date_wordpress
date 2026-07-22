@@ -140,12 +140,17 @@ class ImportOsm extends Command
      */
     private function interogheaza(string $oras): ?array
     {
+        $numeOsm = strtr($oras, [
+            'ş' => 'ș', 'Ş' => 'Ș',
+            'ţ' => 'ț', 'Ţ' => 'Ț',
+        ]);
+
         $query = <<<OVERPASS
-    [out:json][timeout:180];
-    area["name"="{$oras}"]["boundary"="administrative"]["admin_level"="8"]->.zona;
-    nwr["addr:street"]["addr:postcode"](area.zona);
-    out center tags;
-    OVERPASS;
+[out:json][timeout:180];
+area["name"="{$numeOsm}"]["boundary"="administrative"]["admin_level"="8"]->.zona;
+nwr["addr:street"]["addr:postcode"](area.zona);
+out center tags;
+OVERPASS;
 
         $asteptare = 5;
 
@@ -175,7 +180,7 @@ class ImportOsm extends Command
             }
 
             sleep($asteptare);
-            $asteptare *= 2;      // 5, 10, 20, 40
+            $asteptare += 1;      // 5, 10, 20, 40
         }
 
         return null;
@@ -219,12 +224,12 @@ class ImportOsm extends Command
 
         foreach ($strazi as $cheie => $date) {
             $coduri = array_unique(array_column($date['case'], 'cod'));
-
+            $parti = A::splitStreet($date['nume']);
             $baza = [
                 'county' => $judet,
                 'city' => $oras,
                 'city_normalized' => $cityNorm,
-                'street_type' => null,
+                'street_type' => $parti['tip'],
                 'street_name' => $date['nume'],
                 'street_normalized' => $cheie,
                 'source' => 'osm',

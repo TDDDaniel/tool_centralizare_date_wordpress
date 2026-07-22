@@ -10,7 +10,7 @@
         href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
 
-    @vite(['resources/css/dashboard.css', 'resources/css/comanda.css'])
+    @vite(['resources/css/dashboard.css', 'resources/css/comanda.css', 'resources/js/comanda.js'])
 </head>
 <body>
 <aside class="side">
@@ -88,11 +88,19 @@
                 <label for="address_street">Stradă</label>
                 <input type="text" name="address_street" id="address_street" value="{{ old('address_street') }}">
                 @error('address_street') <span class="err">{{ $message }}</span> @enderror
+                <div id="strada_sugestii" class="strada-sugestii"></div>
             </div>
             <div class="field">
                 <label for="address_number">Număr</label>
                 <input type="text" name="address_number" id="address_number" value="{{ old('address_number') }}">
                 @error('address_number') <span class="err">{{ $message }}</span> @enderror
+            </div>
+            <div class="field">
+                <label for="address_postal_code">Cod poștal (opțional)</label>
+                <input type="text" name="address_postal_code" id="address_postal_code" maxlength="6"
+                       placeholder="lasă gol ca să-l calculăm noi" value="{{ old('address_postal_code') }}">
+                @error('address_postal_code') <span class="err">{{ $message }}</span> @enderror
+                <div id="postal_variante" class="postal-variante"></div>
             </div>
             <div class="field">
                 <label for="address_building">Bloc (opțional)</label>
@@ -137,6 +145,15 @@
     </div>
     <button type="submit" class="submit-btn">Salvează comanda</button>
 </form>
+
+{{-- TEMPORAR: ce a gasit cautarea de cod postal. De scos dupa ce testezi. --}}
+@if (session('postal'))
+    <pre style="background:#f4f4f5;padding:16px;overflow:auto;font-size:13px">{{ print_r(session('postal'), true) }}</pre>
+@endif
+
+@if (session('postal'))
+    <pre style="background:#f4f4f5;padding:16px;overflow:auto">{{ print_r(session('postal'), true) }}</pre>
+@endif
 
 </body>
 </html>
