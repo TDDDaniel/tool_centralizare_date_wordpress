@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\PostalCodeLookup;
-use App\Models\CityPostalCode;
+use App\Models\PostalCode;
 use App\Support\AddressNormalizer as A;
 use Illuminate\Http\Request;
 
@@ -65,6 +65,7 @@ class AddressLookupController extends Controller
      */
     public function strazi(Request $request)
     {
+        $judetN = A::normalize($request->query('judet', ''));   // NOU
         $orasN = A::normalize($request->query('oras', ''));
         $qN = A::normalizeStreet($request->query('q', ''));
 
@@ -74,7 +75,8 @@ class AddressLookupController extends Controller
         }
 
         return response()->json(
-            CityPostalCode::where('city_normalized', $orasN)
+            PostalCode::where('city_normalized', $orasN)
+                ->when($judetN !== '', fn($q) => $q->where('county_normalized', $judetN))   // NOU
                 ->where('street_normalized', 'like', $qN . '%')
                 ->distinct()
                 ->orderBy('street_name')

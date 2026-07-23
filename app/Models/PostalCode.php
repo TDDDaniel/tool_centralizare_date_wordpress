@@ -11,9 +11,18 @@ class PostalCode extends Model
         'county_normalized',
         'city',
         'city_normalized',
-        'street',
+        'street_type',
+        'street_name',
+        'street_normalized',
+        'number_from',
+        'number_to',
+        'parity',
         'postal_code',
         'source',
-        'normalized',
+    ];
+
+    protected $casts = [
+        'number_from' => 'integer',
+        'number_to' => 'integer',
     ];
 }

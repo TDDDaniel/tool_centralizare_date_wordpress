@@ -34,6 +34,10 @@ async function cautaCodPostal() {
     } else if (date.status === 'exact') {
         lista = [{cod: date.cod, interval: ''}];
         titluNormal = 'Codul potrivit:';
+    } else if (date.status === 'fara_cod') {
+        // strada gasita, dar fara cod oficial -> ii spunem operatorului sa-l scrie manual
+        box.innerHTML = '<p class="variante-titlu">Am găsit strada, dar nu avem cod oficial pentru ea — scrie-l manual în câmpul de cod poștal.</p>';
+        return;
     } else if (date.status === 'ambiguu') {
         lista = date.variante.map((v) => ({
             cod: v.cod,
@@ -112,6 +116,7 @@ async function autocompleteStrada() {
     const box = el('strada_sugestii');
     const q = el('address_street').value.trim();
     const oras = el('address_city').value.trim();
+    const judet = el('address_county').value.trim();
 
     // avem nevoie de localitate + minim 3 litere
     if (!oras || q.length < 3) {
@@ -119,7 +124,7 @@ async function autocompleteStrada() {
         return;
     }
 
-    const params = new URLSearchParams({oras, q});
+    const params = new URLSearchParams({judet, oras, q});
     const raspuns = await fetch(`/cauta/strazi?${params}`);
     const strazi = await raspuns.json();
 

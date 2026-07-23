@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\CityPostalCode;
 use App\Models\PostalCode;
 use App\Support\AddressNormalizer as A;
 use Illuminate\Support\Collection;
@@ -12,6 +11,7 @@ class PostalCodeLookup
     public const EXACT = 'exact';
     public const LOCALITATE = 'localitate';
     public const AMBIGUU = 'ambiguu';
+    public const FARA_COD = 'fara_cod';   // strada exista, dar n-are cod oficial -> operatorul/API-ul il completeaza
     public const NEGASIT = 'negasit';
 
     /** Ce a cautat efectiv in baza - pentru panoul de diagnostic. */
@@ -33,30 +33,33 @@ class PostalCodeLookup
 
         // STRAT 1: strada + numar
         if ($stradaN) {
-            if ($r = $this->cautaPeStrada($orasN, $stradaN, $nr)) {
+            if ($r = $this->cautaPeStrada($judetN, $orasN, $stradaN, $nr)) {
                 return $r;
             }
         }
 
-        // STRAT 2: localitatea are un singur cod
-        $localitate = PostalCode::where('county_normalized', $judetN)
+        // STRAT 2: localitatea are un SINGUR cod (sat/comuna).
+        // Tabela contine si randuri de strada, deci returnam codul doar daca
+        // localitatea are un singur cod distinct - altfel e oras, nu ghicim.
+        $coduri = PostalCode::where('county_normalized', $judetN)
             ->where('city_normalized', 'like', $orasN . '%')
-            ->first();
+            ->whereNotNull('postal_code')
+            ->distinct()->pluck('postal_code');
 
-        if ($localitate) {
-            return $this->rezultat(self::LOCALITATE, $localitate->postal_code);
+        if ($coduri->count() === 1) {
+            return $this->rezultat(self::LOCALITATE, $coduri->first());
         }
 
         // STRAT 3: nimic - intreaba operatorul
         return $this->rezultat(self::NEGASIT, null);
     }
 
-    private function cautaPeStrada(string $orasN, string $stradaN, ?int $nr): ?array
+    private function cautaPeStrada(string $judetN, string $orasN, string $stradaN, ?int $nr): ?array
     {
-        $reguli = CityPostalCode::where('city_normalized', $orasN)
+        $reguli = PostalCode::where('county_normalized', $judetN)   // NOU
+        ->where('city_normalized', $orasN)
             ->where('street_normalized', 'like', $stradaN . '%')
             ->get();
-
         if ($reguli->isEmpty()) {
             return null;      // cadem la stratul urmator
         }
@@ -67,7 +70,12 @@ class PostalCodeLookup
         $specifice = $potrivite->filter(fn($r) => $r->number_from !== null);
         $finale = $specifice->isNotEmpty() ? $specifice : $potrivite;
 
-        $coduri = $finale->pluck('postal_code')->unique()->values();
+        $coduri = $finale->pluck('postal_code')->filter()->unique()->values();   // filter() scoate NULL/gol
+
+        if ($coduri->isEmpty()) {
+            // strada exista, dar ANAF n-are cod pentru ea -> operatorul (sau API-ul, pe viitor) il completeaza
+            return $this->rezultat(self::FARA_COD, null, $finale);
+        }
 
         if ($coduri->count() === 1) {
             return $this->rezultat(self::EXACT, $coduri->first(), $finale);
@@ -76,7 +84,7 @@ class PostalCodeLookup
         return $this->rezultat(self::AMBIGUU, null, $reguli);
     }
 
-    private function acopera(CityPostalCode $r, ?int $nr): bool
+    private function acopera(PostalCode $r, ?int $nr): bool
     {
         if ($r->number_from === null && $r->number_to === null) {
             return true;      // regula pe toata strada
