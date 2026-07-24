@@ -106,10 +106,17 @@ function aratsaVariante(lista, textTitlu, clasaExtra = '') {   // MODIFICAT: cla
 }
 
 // declansam cand operatorul iese din campuri sau da click pe codul postal
+// declansam cand operatorul iese din campuri sau da click pe codul postal
 el('address_city')?.addEventListener('blur', cautaCodPostal);
-el('address_number')?.addEventListener('blur', cautaCodPostal);
 el('address_street')?.addEventListener('blur', cautaCodPostal);
 el('address_postal_code')?.addEventListener('focus', cautaCodPostal);
+
+// numarul: actualizare LIVE (nu doar la blur), ca sugestiile sa reflecte imediat noul interval
+let timerNumar;
+el('address_number')?.addEventListener('input', () => {
+    clearTimeout(timerNumar);
+    timerNumar = setTimeout(cautaCodPostal, 250);
+});
 
 // --- Autocomplete pentru strada ---
 async function autocompleteStrada() {

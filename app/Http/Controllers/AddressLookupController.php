@@ -60,28 +60,60 @@ class AddressLookupController extends Controller
     }
 
     /**
-     * GET /cauta/strazi?oras=&q=
-     * Numele de strazi din oras care incep cu q (pentru autocomplete). Maxim 10.
+     * GET /cauta/strazi?judet=&oras=&q=
+     * Sugestii de strazi, TOLERANT: potriveste pe cuvinte + similaritate (typo-uri).
+     * "steagul rosu" -> Steagul Rosu + Turnu Rosu (cuvant comun); "semaforuli" -> Semaforului.
      */
     public function strazi(Request $request)
     {
-        $judetN = A::normalize($request->query('judet', ''));   // NOU
-        $orasN = A::normalize($request->query('oras', ''));
-        $qN = A::normalizeStreet($request->query('q', ''));
+        $judetN = A::normalize($request->query('judet', ''));
+        $orasN  = A::normalize($request->query('oras', ''));
+        $qN     = A::normalizeStreet($request->query('q', ''));
 
         // asteptam minim 3 litere si sa stim localitatea (strazile sunt per-oras)
         if ($orasN === '' || strlen($qN) < 3) {
             return response()->json([]);
         }
 
+        // toate strazile distincte din localitate (mic - o singura localitate)
+        $strazi = PostalCode::where('city_normalized', $orasN)
+            ->when($judetN !== '', fn($q) => $q->where('county_normalized', $judetN))
+            ->distinct()
+            ->get(['street_name', 'street_normalized']);
+
+        // cuvintele din ce a tastat (ignoram cele foarte scurte)
+        $cuvinte = array_filter(explode(' ', $qN), fn($w) => strlen($w) >= 3);
+
         return response()->json(
-            PostalCode::where('city_normalized', $orasN)
-                ->when($judetN !== '', fn($q) => $q->where('county_normalized', $judetN))   // NOU
-                ->where('street_normalized', 'like', $qN . '%')
-                ->distinct()
-                ->orderBy('street_name')
-                ->limit(10)
-                ->pluck('street_name')
+            $strazi->map(function ($s) use ($qN, $cuvinte) {
+                $n = $s->street_normalized;
+                $scor = 0;
+                $areCuvant = false;
+
+                if (str_starts_with($n, $qN)) $scor += 200;   // incepe exact cu ce a scris
+                if (str_contains($n, $qN))    $scor += 100;   // contine sirul intreg
+
+                foreach ($cuvinte as $w) {
+                    if (str_contains($n, $w)) {               // cuvant comun (ex. "rosu")
+                        $scor += 30;
+                        $areCuvant = true;
+                    }
+                }
+
+                similar_text($qN, $n, $procent);              // 0..100, prinde typo-urile
+                $scor += $procent;
+
+                // pastram doar ce e relevant: cuvant comun SAU destul de asemanator
+                $relevant = $areCuvant || $procent >= 55;
+
+                return ['nume' => $s->street_name, 'scor' => $scor, 'ok' => $relevant];
+            })
+            ->filter(fn($x) => $x['ok'])
+            ->sortByDesc('scor')
+            ->take(10)
+            ->pluck('nume')
+            ->unique()
+            ->values()
         );
     }
 }

@@ -56,12 +56,20 @@ class PostalCodeLookup
 
     private function cautaPeStrada(string $judetN, string $orasN, string $stradaN, ?int $nr): ?array
     {
-        $reguli = PostalCode::where('county_normalized', $judetN)   // NOU
-        ->where('city_normalized', $orasN)
+        $reguli = PostalCode::where('county_normalized', $judetN)
+            ->where('city_normalized', $orasN)
             ->where('street_normalized', 'like', $stradaN . '%')
             ->get();
+
         if ($reguli->isEmpty()) {
-            return null;      // cadem la stratul urmator
+            return null;      // strada nu exista deloc -> cadem la stratul urmator
+        }
+
+        // Are strada VREUN cod oficial? Decidem asta INAINTE de filtrarea pe numar,
+        // altfel o strada cu intervale (fara numar dat) ar parea gresit "fara cod".
+        if ($reguli->pluck('postal_code')->filter()->isEmpty()) {
+            // strada exista, dar ANAF n-are niciun cod pentru ea -> operatorul (sau API-ul) il completeaza
+            return $this->rezultat(self::FARA_COD, null, $reguli);
         }
 
         $potrivite = $reguli->filter(fn($r) => $this->acopera($r, $nr));
@@ -70,17 +78,13 @@ class PostalCodeLookup
         $specifice = $potrivite->filter(fn($r) => $r->number_from !== null);
         $finale = $specifice->isNotEmpty() ? $specifice : $potrivite;
 
-        $coduri = $finale->pluck('postal_code')->filter()->unique()->values();   // filter() scoate NULL/gol
-
-        if ($coduri->isEmpty()) {
-            // strada exista, dar ANAF n-are cod pentru ea -> operatorul (sau API-ul, pe viitor) il completeaza
-            return $this->rezultat(self::FARA_COD, null, $finale);
-        }
+        $coduri = $finale->pluck('postal_code')->filter()->unique()->values();
 
         if ($coduri->count() === 1) {
             return $this->rezultat(self::EXACT, $coduri->first(), $finale);
         }
 
+        // fie 0 (n-ai dat numar pe o strada cu intervale), fie >1 -> aratam toate variantele
         return $this->rezultat(self::AMBIGUU, null, $reguli);
     }
 
